@@ -1,0 +1,157 @@
+{
+   "version":"1",
+   "data":[
+      {
+         "podTemplate":{
+            "inheritFrom":"",
+            "name":"default-java",
+            "displayName":"Kubernetes Pod Template",
+            "namespace":"",
+            "privileged":false,
+            "capOnlyOnAlivePods":false,
+            "alwaysPullImage":false,
+            "command":"/bin/sh",
+            "args":"/var/jenkins_config/jenkins-agent",
+            "instanceCap":2147483647,
+            "slaveConnectTimeout":100,
+            "idleMinutes":0,
+            "activeDeadlineSeconds":0,
+            "label":"",
+            "serviceAccount":null,
+            "nodeSelector":"",
+            "nodeUsageMode":"NORMAL",
+            "resourceRequestCpu":"",
+            "resourceRequestMemory":"",
+            "resourceLimitCpu":"",
+            "resourceLimitMemory":"",
+            "customWorkspaceVolumeEnabled":false,
+            "volume":{
+               "type":"EmptyDirWorkspaceVolume",
+               "memory":false
+            },
+            "volumes":[
+               {
+                  "type":"ConfigMapVolume",
+                  "mountPath":"/var/jenkins_config",
+                  "configMapName":"jenkins-agent"
+               }
+            ],
+            "containers":[
+               {
+                  "name":"jnlp",
+                  "image":"jenkins/jnlp-slave:alpine",
+                  "privileged":false,
+                  "alwaysPullImage":false,
+                  "workingDir":"/home/jenkins",
+                  "command":"/bin/sh",
+                  "args":"/var/jenkins_config/jenkins-agent",
+                  "ttyEnabled":true,
+                  "resourceRequestCpu":"",
+                  "resourceRequestMemory":"",
+                  "resourceLimitCpu":"",
+                  "resourceLimitMemory":"",
+                  "shell":null,
+                  "envVars":[
+
+                  ],
+                  "ports":[
+
+                  ],
+                  "livenessProbe":{
+                     "execArgs":"",
+                     "timeoutSeconds":0,
+                     "initialDelaySeconds":0,
+                     "failureThreshold":0,
+                     "periodSeconds":0,
+                     "successThreshold":0
+                  }
+               }
+            ],
+            "envVars":[
+
+            ],
+            "annotations":[
+
+            ],
+            "imagePullSecrets":[
+
+            ],
+            "yaml":""
+         }
+      },
+      {
+         "podTemplate":{
+            "inheritFrom":"",
+            "name":"jnlp",
+            "displayName":"Kubernetes Pod Template",
+            "namespace":"",
+            "privileged":false,
+            "capOnlyOnAlivePods":false,
+            "alwaysPullImage":false,
+            "command":"/bin/sh -c",
+            "args":"cat",
+            "instanceCap":2147483647,
+            "slaveConnectTimeout":100,
+            "idleMinutes":0,
+            "activeDeadlineSeconds":0,
+            "label":"bazel",
+            "serviceAccount":null,
+            "nodeSelector":"",
+            "nodeUsageMode":"EXCLUSIVE",
+            "resourceRequestCpu":"",
+            "resourceRequestMemory":"",
+            "resourceLimitCpu":"",
+            "resourceLimitMemory":"",
+            "customWorkspaceVolumeEnabled":false,
+            "volume":{
+               "type":"EmptyDirWorkspaceVolume",
+               "memory":false
+            },
+            "volumes":[
+
+            ],
+            "containers":[
+               {
+                  "name":"bazel",
+                  "image":"insready/bazel:latest",
+                  "privileged":false,
+                  "alwaysPullImage":false,
+                  "workingDir":"/home/jenkins",
+                  "command":"/bin/sh -c",
+                  "args":"cat",
+                  "ttyEnabled":true,
+                  "resourceRequestCpu":"",
+                  "resourceRequestMemory":"",
+                  "resourceLimitCpu":"",
+                  "resourceLimitMemory":"",
+                  "shell":null,
+                  "envVars":[
+
+                  ],
+                  "ports":[
+
+                  ],
+                  "livenessProbe":{
+                     "execArgs":"",
+                     "timeoutSeconds":0,
+                     "initialDelaySeconds":0,
+                     "failureThreshold":0,
+                     "periodSeconds":0,
+                     "successThreshold":0
+                  }
+               }
+            ],
+            "envVars":[
+
+            ],
+            "annotations":[
+
+            ],
+            "imagePullSecrets":[
+
+            ],
+            "yaml":""
+         }
+      }
+   ]
+}

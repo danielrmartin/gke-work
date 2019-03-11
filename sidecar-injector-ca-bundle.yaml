@@ -1,0 +1,116 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sidecar-injector-webhook-configmap
+  namespace: sidecar-injector
+data:
+  sidecarconfig.yaml: |
+    annotationPrefix: com.cloudbees.sidecar-injector
+    requiresExplicitInjection: false
+    container:
+      volumeMounts:
+        - name: ca-bundles
+          mountPath: /etc/ssl/certs/ca-certificates.crt # Alpine/Debian/Ubuntu/Gentoo etc.
+          subPath: ca-certificates.crt
+        - name: ca-bundles
+          mountPath: /etc/pki/tls/certs/ca-bundle.crt # Fedora/RHEL 6
+          subPath: ca-certificates.crt
+        - name: ca-bundles
+          mountPath: /etc/ssl/ca-bundle.pem # OpenSUSE
+          subPath: ca-certificates.crt
+        - name: ca-bundles
+          mountPath: /etc/pki/tls/cacert.pem # OpenELEC
+          subPath: ca-certificates.crt
+        - name: ca-bundles
+          mountPath: /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem # CentOS/RHEL 7
+          subPath: ca-certificates.crt
+        - name: ca-bundles
+          mountPath: /etc/ssl/certs/java/cacerts # Alpine/Debian/Ubuntu/Gentoo etc.
+          subPath: cacerts
+        - name: ca-bundles
+          mountPath: /var/lib/ca-certificates/java-cacerts # OpenSUSE
+          subPath: cacerts
+        - name: ca-bundles
+          mountPath: /etc/pki/java/cacerts # CentOS/RHEL 6-7
+          subPath: cacerts
+    volumes:
+      - name: ca-bundles
+        configMap:
+          name: ca-bundles
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sidecar-injector-webhook-deployment
+  namespace: sidecar-injector
+  labels:
+    app: sidecar-injector
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sidecar-injector
+    spec:
+      containers:
+        - name: sidecar-injector
+          image: cloudbees/sidecar-injector:1.0.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - -sidecarCfgFile=/etc/webhook/config/sidecarconfig.yaml
+            - -tlsCertFile=/etc/webhook/certs/cert.pem
+            - -tlsKeyFile=/etc/webhook/certs/key.pem
+            - -alsologtostderr
+            - -v=4
+            - 2>&1
+          volumeMounts:
+            - name: webhook-certs
+              mountPath: /etc/webhook/certs
+              readOnly: true
+            - name: webhook-config
+              mountPath: /etc/webhook/config
+      volumes:
+        - name: webhook-certs
+          secret:
+            secretName: sidecar-injector-webhook-certs
+        - name: webhook-config
+          configMap:
+            name: sidecar-injector-webhook-configmap
+---
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: sidecar-injector-webhook-cfg
+  labels:
+    app: sidecar-injector
+webhooks:
+  - name: com.cloudbees.sidecar-injector
+    clientConfig:
+      service:
+        name: sidecar-injector-webhook-svc
+        namespace: sidecar-injector
+        path: "/mutate"
+      caBundle: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURDekNDQWZPZ0F3SUJBZ0lRS0FZYlpvcjZZS1BraWEwdnNTRHlRREFOQmdrcWhraUc5dzBCQVFzRkFEQXYKTVMwd0t3WURWUVFERXlRNVpXVmlNRGxoTnkwMlpUWXhMVFEzTkRjdFltUXlOaTFpWVdKbVlXWm1PREk0TTJRdwpIaGNOTVRrd01URXhNakEwTURBd1doY05NalF3TVRFd01qRTBNREF3V2pBdk1TMHdLd1lEVlFRREV5UTVaV1ZpCk1EbGhOeTAyWlRZeExUUTNORGN0WW1ReU5pMWlZV0ptWVdabU9ESTRNMlF3Z2dFaU1BMEdDU3FHU0liM0RRRUIKQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUR6RTlIYS9HYWlTNlgxZnJNRDg4SVVObDdwUXB6U2d1WWtqc1pUZm9uMgpocFZRSll4cWMzTEZoQU5XSk9vdlZ1OERUQzlJaUE0ZDlwem1xODVZUXlwRS9GOGgrTmxtSk41M2k1UjVsWW5SClpGb0ttcEVxRkdYNW5yRStRcUM0bklaL2ZZQ3V3bGZ6c0xTd2U4SncwcWNjMnMwK0xESUdWcjZ6RjdOS3U0ZXAKQWo1dUxINnB2WGc1Q1dvdGI1MUVYY2pBb1V2N1E3NU9tek9rekxDTzVtcS9BKzBUNHRlUW1qMDJYTnlxR2FONQp6WkVQVzF4Z25pbzZPYjQ3THJaNFpWUUVJeDhsQzdrZ1pqWnF3VEFUMkd1M0NHY3dFUFl2MmQ4dFhpY3BsZWsrCkVOWk5YT0JUcUFCZE95alRra3I0R0Q2TFFkclEvRFE1TVJhbC9GYUUzTmNIQWdNQkFBR2pJekFoTUE0R0ExVWQKRHdFQi93UUVBd0lDQkRBUEJnTlZIUk1CQWY4RUJUQURBUUgvTUEwR0NTcUdTSWIzRFFFQkN3VUFBNElCQVFDeQoyakFYSUt6TDRKcXVYRVJMdmNMSFQ2bndNUitCSmxOZW45MXNSSFVleHU5MDM2VkZpNEgzNVhEWXVVR3NBVGZFCkZNRnIra2xWRkNsR2M5cGdpa0R3YXhwd09oMU5vamxNbzk4a25kRmpnSHZTdGQvekl0ZDBUVHRvVGQvMFJjOHUKaWlCanc2T0tLR3VyTWxCK0FNNVQzTXhhcjh5ZTJ2V2ZRYkZHNGh1MmU2V1VFU0hvZHYra0UrVG9ENllwR1VONgp0UUZJanpUMFEwd0FWK0tyUTEraVM2UTREWUk2bTR5SGRPRHRXQkFsQzlERTZGTy9XbXZra2tIMCs4QTRiK3dYCmM1UlNHWFkwdnBrZXR5QXh2TXhJdlRVaXkrTTdoK3BmbHVORzVhZnZYc1hzVUovMURvdldjcmJzWVM1azBYQ1IKOGlDRlRkZFVHNmczVEZ0SDdKR2IKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo="
+    rules:
+      - operations: [ "CREATE" ]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+    namespaceSelector:
+      matchLabels:
+        sidecar-injector: enabled
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sidecar-injector-webhook-svc
+  namespace: sidecar-injector
+  labels:
+    app: sidecar-injector
+spec:
+  ports:
+  - port: 443
+    targetPort: 443
+  selector:
+    app: sidecar-injector
