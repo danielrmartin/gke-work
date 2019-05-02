@@ -1,0 +1,9 @@
+#for finding creds in a TEAM:
+
+java -jar jenkins-cli.jar -s  http://cje.dmartin-cje.com/teams-travel/ -auth dmartin:114d182f012495c3018d8aeacf32587d75 list-credentials folder::item::/travel/new-git
+#Finding creds in Master folder
+java -jar jenkins-cli.jar -s  http://cje.dmartin-cje.com/master1/ -auth dmartin:114d182f012495c3018d8aeacf32587d75 list-credentials folder::item::/CAE-git
+#Finding global creds
+java -jar jenkins-cli.jar -s  http://cje.dmartin-cje.com/master1/ -auth dmartin:114d182f012495c3018d8aeacf32587d75 list-credentials system::system::jenkins 
+java -jar jenkins-cli.jar -s  http://cje.dmartin-cje.com/cjoc/ -auth dmartin:114d182f012495c3018d8aeacf32587d75 list-credentials system::system::jenkins 
+

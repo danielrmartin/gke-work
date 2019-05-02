@@ -1,0 +1,18 @@
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: access-all-ps
+subjects:
+- kind: User	
+  name: lcorbo@cloudbees.com
+  apiGroup: rbac.authorization.k8s.io
+- kind: User
+  name: zzimmerman@cloudbees.com
+  apiGroup: rbac.authorization.k8s.io
+- kind: User
+  name: mhicks@cloudbees.com
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin-all 
+  apiGroup: rbac.authorization.k8s.io
