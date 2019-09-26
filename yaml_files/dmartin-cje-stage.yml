@@ -1,0 +1,37 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+
+kind: Certificate
+
+metadata:
+
+  name: dmartin-cje
+
+  namespace: default
+
+spec:
+
+  secretName: hello-docker
+
+  issuerRef:
+
+    name: letsencrypt-staging
+
+    kind: ClusterIssuer
+
+  commonName: cje.dmartin-cje.com
+
+  dnsNames:
+
+  - cje.dmartin-cje.com
+
+  acme:
+
+    config:
+
+    - dns01:
+
+        provider: clouddns
+
+      domains:
+
+      - cje.dmartin-cje.com

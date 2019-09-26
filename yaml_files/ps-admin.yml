@@ -12,6 +12,15 @@ subjects:
 - kind: User
   name: mhicks@cloudbees.com
   apiGroup: rbac.authorization.k8s.io
+- kind: User
+  name: kyounger@cloudbees.com
+  apiGroup: rbac.authorization.k8s.io
+- kind: User
+  name: zzimmerman@cloudbees.com
+  apiGroup: rbac.authorization.k8s.io
+- kind: User
+  name: danielraymartin@gmail.com
+  apiGroup: rbac.authorization.k8s.io
 roleRef:
   kind: ClusterRole
   name: cluster-admin-all 

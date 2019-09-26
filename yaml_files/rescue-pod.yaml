@@ -1,0 +1,15 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: rescue-pod
+spec:
+  volumes:
+    - name: rescue-storage
+      persistentVolumeClaim:
+       claimName: jenkins-home-cjoc-0  
+  containers:
+    - name: rescue-container
+      image: nginx
+      volumeMounts:
+        - mountPath: "/tmp/jenkins-home"
+          name: rescue-storage
