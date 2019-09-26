@@ -1,25 +1,28 @@
-apiVersion: apps/v1
-kind: ReplicaSet
+apiVersion: v1
+kind: ReplicationController
 metadata:
-  name: frontend
+  name: busybox0
   labels:
-    app: guestbook
-    tier: frontend
+    app: busybox0
 spec:
-  # modify replicas according to your case
-  replicas: 3
+  replicas: 1
   selector:
-    matchLabels:
-      tier: frontend
+    app: busybox0
   template:
     metadata:
+      name: busybox0
       labels:
-        tier: frontend
+        app: busybox0
     spec:
       containers:
-      - name: php-redis
-        image: gcr.io/google_samples/gb-frontend:v3
+      - image: busybox
+        command:
+          - sleep
+          - "3600"
+        imagePullPolicy: IfNotPresent
+        name: busybox
         resources:
           limits:
-            cpu: "1"
-            memory: "500Mi"
+            cpu: 1
+            memory: "1Gi"
+      restartPolicy: Always
